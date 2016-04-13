@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script>
+      //Pass the uploaded file object (formObject.file) to the web service, extract CSV content from the uploaded file
+      function handleFormSubmit(formObject) {
+        jQuery("input:button").attr("disabled",true);
+        google.script.run.withSuccessHandler(updateOutput).withFailureHandler(fail).processFile(formObject);
+      }
+      //Pass CSV content as a string (formObject.data)
+      function handleFormPost(formObject) {
+        jQuery("input:button").attr("disabled",true);
+        google.script.run.withSuccessHandler(updateOutput).withFailureHandler(fail).doTextPost(formObject);
+      }
+      //Display the name and URL of the Google Sheet that was created
+      function updateOutput(data) {
+        var resp  = jQuery.parseJSON(data);
+        document.getElementById("output").innerHTML="<a href='"+resp.url+"'>"+resp.name+"</a> created on Google Drive";
+      }
+      //Display and error dialog
+      function fail(data) {
+        alert("FAIL: "+data);
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Create a Plain Text Google Spreadsheet That Prevents Auto-Format of Data Cells</h1>
+    <div>In addition to the forms provided below, you can POST data to this webservice directly.</div>
+    <h2>Upload a CSV File</h2>
+    <form id="myForm">
+      <div>
+        <label for="file">CSV File to Upload</label>
+        <input name="file" type="file"/>
+      </div>
+      <div>
+        <input type="button" value="Upload CSV" name="button" onclick="handleFormSubmit(document.getElementById('myForm'))"/>
+      </div>
+    </form>
+    <hr/>
+    <h2>Upload the Text from a CSV file</h2>
+    <form id="myPostForm" method="POST">
+      <div>
+        <label for="data">CSV File to Upload</label>
+        <br/>
+        <textarea name="data" rows="10" cols="100"></textarea>
+      </div>
+      <div>
+        <input type="button" value="Upload Data" name="button" onclick="handleFormPost(document.getElementById('myPostForm'))"/>
+      </div>
+    </form>
+    <hr/>
+    <h2>Link to new Spreadsheet</h2>
+    <div id="output">Upload CSV text in order to generate a new Google Sheet</div>
+  </body>
+</html>
