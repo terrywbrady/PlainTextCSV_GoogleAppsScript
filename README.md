@@ -12,10 +12,8 @@ Create a Google Sheet from a CSV file preventing auto-formatting of date and num
 * Share the URL with your users
 * Users will need to authorize the application to write to Google Drive before running the application
 
-## Sample CSV
-
-## Generated Google Sheet
-
+## Sample Screenshots
+https://github.com/terrywbrady/PlainTextCSV_GoogleAppsScript/releases/tag/v1.0.0
 
 ## StackOverflow Thread
 http://stackoverflow.com/questions/36605298/create-a-google-sheet-with-plain-text-cells-to-prevent-auto-format-of-strings
