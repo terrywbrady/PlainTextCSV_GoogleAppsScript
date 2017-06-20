@@ -7,12 +7,14 @@
       //Pass the uploaded file object (formObject.file) to the web service, extract CSV content from the uploaded file
       function handleFormSubmit(formObject) {
         jQuery("input:button").attr("disabled",true);
-        google.script.run.withSuccessHandler(updateOutput).withFailureHandler(fail).processFile(formObject);
+        google.script.run.withSuccessHandler(updateOutput)
+          .withFailureHandler(fail).processFile(formObject);
       }
       //Pass CSV content as a string (formObject.data)
       function handleFormPost(formObject) {
         jQuery("input:button").attr("disabled",true);
-        google.script.run.withSuccessHandler(updateOutput).withFailureHandler(fail).doTextPost(formObject);
+        google.script.run.withSuccessHandler(updateOutput)
+          .withFailureHandler(fail).doTextPost(formObject);
       }
       //Display the name and URL of the Google Sheet that was created
       function updateOutput(data) {
@@ -24,34 +26,89 @@
         alert("FAIL: "+data);
       }
     </script>
+    <style type="text/css">
+      fieldset {
+        width: 750px;
+        margin-bottom: 5px;
+      }
+    </style>
   </head>
   <body>
-    <h1>Create a Plain Text Google Spreadsheet That Prevents Auto-Format of Data Cells</h1>
+    <h2>Create a Plain Text Google Spreadsheet That Prevents Auto-Format of Data Cells</h2>
     <div>In addition to the forms provided below, you can POST data to this webservice directly.</div>
-    <h2>Upload a CSV File</h2>
+    <h4>Link to new Spreadsheet</h4>
+    <div id="output">Once you upload data, a link to the Google Sheet will appear here</div>
+    <hr/>
+    <h4>Upload a CSV File</h4>
     <form id="myForm">
       <div>
-        <label for="file">CSV File to Upload</label>
-        <input name="file" type="file"/>
+        <fieldset>
+          <legend><label for="name">Name to assign to spreadsheet (optional)</label></legend>
+          <input name="name" id="name" size="60"></input>
+        </fieldset>
       </div>
       <div>
-        <input type="button" value="Upload CSV" name="button" onclick="handleFormSubmit(document.getElementById('myForm'))"/>
+        <fieldset>
+          <legend><label for="folderid">Google Sheets Folder Id (optional)</label></legend>
+          <input name="folderid" id="folderid" size="60"></input>
+        </fieldset>
+      </div>
+      <div>
+        <fieldset>
+          <legend><label for="delim">Delimiter</label></legend>
+          <select name="delim" id="delim">
+            <option value=",">comma</option>
+            <option value=";">semicolon</option>
+            <option value="&#9;">tab</option>
+            <option value="|">pipe</option>
+          </select>
+        </fieldset>
+      </div>
+      <div>
+        <fieldset>
+          <legend><label for="file">CSV File to Upload</label></legend>
+          <input name="file" type="file" id="file"/>
+          <div>
+            <input type="button" value="Upload CSV" name="button" onclick="handleFormSubmit(document.getElementById('myForm'))"/>
+          </div>
+        </fieldset>
       </div>
     </form>
     <hr/>
-    <h2>Upload the Text from a CSV file</h2>
+    <h4>Upload the Text from a CSV file</h4>
     <form id="myPostForm" method="POST">
       <div>
-        <label for="data">CSV File to Upload</label>
-        <br/>
-        <textarea name="data" rows="10" cols="100"></textarea>
+        <fieldset>
+          <legend><label for="name2">Name to assign to spreadsheet (optional)</label></legend>
+          <input name="name" size="60" id="name2"></input>
+        </fieldset>
       </div>
       <div>
-        <input type="button" value="Upload Data" name="button" onclick="handleFormPost(document.getElementById('myPostForm'))"/>
+        <fieldset>
+          <legend><label for="folderid2">Google Sheets Folder Id (optional)</label></legend>
+          <input name="folderid" size="60" id="folderid2"></input>
+        </fieldset>
+      </div>
+      <div>
+        <fieldset>
+          <legend><label for="delim2">Delimiter</label></legend>
+          <select name="delim" id="delim2">
+            <option value=",">comma</option>
+            <option value=";">semicolon</option>
+            <option value="&#9;">tab</option>
+            <option value="|">pipe</option>
+          </select>
+        </fieldset>
+      </div>
+      <div>
+        <fieldset>
+          <legend><label for="data2">CSV File to Upload</label></legend>
+          <textarea name="data" rows="10" cols="100" id="data2"></textarea>
+          <div>
+            <input type="button" value="Upload Data" name="button" onclick="handleFormPost(document.getElementById('myPostForm'))"/>
+          </div>
+        </fieldset>
       </div>
     </form>
-    <hr/>
-    <h2>Link to new Spreadsheet</h2>
-    <div id="output">Upload CSV text in order to generate a new Google Sheet</div>
   </body>
 </html>

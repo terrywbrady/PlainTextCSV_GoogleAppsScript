@@ -8,11 +8,27 @@ function doGet() {
 //Create a global object to store the response from a POST request
 var RESP;
 
+//Get property from parameter object
+//  obj    - object to read
+//  prop   - name of property
+//  defval - default value to return if property is not found or undefined
+function getParam(obj, prop, defval) {
+  if (prop in obj) {
+    var val = obj[prop];
+    if (val == undefined||val == null) return defval;
+    return val;
+  }
+  return defval;
+}
+
 //Handle a POST request directly to this service.  
 //The parameter "data" should contain CSV content
 //A response page will be generated with a link to the Google Sheet that is generated
 function doPost(req) {
-  RESP = createPlainTextSpreadsheet(req.parameter.data);
+  var name = getParam(req.parameter, "name", "");
+  var folderid = getParam(req.parameter, "folderid", "");
+  var delim = getParam(req.parameter, "delim", ",");
+  RESP = createPlainTextSpreadsheet(req.parameter.data, name, folderid, delim);
   var temp = HtmlService.createTemplateFromFile('Response');
   return temp.evaluate().setSandboxMode(HtmlService.SandboxMode.IFRAME);
 }
@@ -20,7 +36,10 @@ function doPost(req) {
 //Handle CSV content sent from the interactive landing page for this script
 //Return a string representation of a JSON object with the name and URL of the generated Google Sheet
 function doTextPost(req) {
-  var resp = createPlainTextSpreadsheet(req.data);
+  var name = getParam(req, "name", "");
+  var folderid = getParam(req, "folderid", "");
+  var delim = getParam(req, "delim", ",");
+  var resp = createPlainTextSpreadsheet(req.data, name, folderid, delim);
   return JSON.stringify(resp);
 }
 
@@ -28,7 +47,10 @@ function doTextPost(req) {
 //Return a string representation of a JSON object with the name and URL of the generated Google Sheet
 function processFile(form) {
   var blob = form.file;
-  var resp = createPlainTextSpreadsheet(blob.getDataAsString());
+  var name = getParam(form, "name", "");
+  var folderid = getParam(form, "folderid", "");
+  var delim = getParam(form, "delim", ",");
+  var resp = createPlainTextSpreadsheet(blob.getDataAsString(), name, folderid, delim);
   return JSON.stringify(resp);
 }
 
@@ -38,12 +60,20 @@ function processFile(form) {
 //Text wrap will be enabled for all data cells
 //The header row will be highlighted and the columns will be auto-sized
 //Return a JSON object containing the name and URL of the new Google Sheet
-function createPlainTextSpreadsheet(data) {
-  var arr = Utilities.parseCsv(data);
+function createPlainTextSpreadsheet(data, name, folderid, delim) {
+  var arr = Utilities.parseCsv(data, delim);
   if (arr.length == 0) return "No data";
   
   var formattedDate = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd_HH:mm");
-  var spreadsheet = SpreadsheetApp.create("import."+formattedDate+".csv");
+  var sheetname = (name == "") ? "import" : name;
+  var user = Session.getActiveUser().getEmail().replace("@.*$","");
+  sheetname += "." + user + "." + formattedDate + ".csv";
+  var spreadsheet = SpreadsheetApp.create(sheetname);
+  
+  if (folderid != "") {
+    DriveApp.getFolderById(folderid).addFile(DriveApp.getFileById(spreadsheet.getId()));
+  }
+  
   var sheet = spreadsheet.getActiveSheet();
   var range = sheet.getRange(1, 1, arr.length, arr[0].length);
   var rangeR1 = sheet.getRange(1, 1, 1, arr[0].length);
@@ -60,5 +90,5 @@ function createPlainTextSpreadsheet(data) {
     }
   }
     
-  return {name: spreadsheet.getName(), url: spreadsheet.getUrl()};
+  return {name: spreadsheet.getName(), url: DriveApp.getFileById(spreadsheet.getId()).getUrl()};
 }
