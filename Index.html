@@ -4,7 +4,7 @@
     <base target="_top">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     <script>
-      //Pass CSV content as a string (formObject.data)
+      //<![CDATA[Pass CSV content as a string (formObject.data) 
       function handleFormPost(formObject) {
         jQuery("input:button").attr("disabled",true);
         google.script.run.withSuccessHandler(updateOutput)
@@ -20,6 +20,7 @@
       function fail(data) {
         alert("FAIL: "+data);
       }
+      //]]>
     </script>
     <style type="text/css">
       fieldset {
